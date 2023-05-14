@@ -4,9 +4,10 @@ This project is designed to compile a database of all nuclear related jobs for u
 # Link to current database:
 [Google Drive link](https://docs.google.com/spreadsheets/d/1-1ADPSkO3RNFu-H-JD5RQFV4l6obgiK6/edit?usp=sharing&ouid=114343353415857691307&rtpof=true&sd=true)
 
+# Instructions:
+
 
 # Future Work
-* Adding url of specific jobs to the dataframe
 * Continuing to add new companies
     * BWXT
     * Nuscale
