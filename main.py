@@ -3,6 +3,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
+import pandas as pd
+import os
+
 data_dict={
     'Southern Company':{
         'urls':['https://southerncompany-nuclear.jobs/#3'],
@@ -216,20 +219,20 @@ data_dict={
         'url_class':'href',
         'xPath': '/html',      
     },
-    'EnergySolutions':{# Doesn't work
-        'urls':['https://energy-solution.com/careers/'],
-        'jobs_tag':'tr',
-        'jobs_class':'reqitem ReqRowClick ReqRowClick',
-        'jobs_id':'',
-        'title_tag':'td',
-        'title_class':'posTitle reqitem ReqRowClick',
-        'location_tag':'td',
-        'location_class':'cities reqitem ReqRowClick',
-        'url_tag':'a',
-        'url_class':'href',
-        'xPath':'/html/body/div/div/div/article/div/div/div/div[3]/div[1]/div[2]/div/div/iframe'
-        # 'xPath':'//*[@class="reqitem ReqRowClick ReqRowClick"]'
-    }
+    # 'EnergySolutions':{# Doesn't work
+    #     'urls':['https://energy-solution.com/careers/'],
+    #     'jobs_tag':'tr',
+    #     'jobs_class':'reqitem ReqRowClick ReqRowClick',
+    #     'jobs_id':'',
+    #     'title_tag':'td',
+    #     'title_class':'posTitle reqitem ReqRowClick',
+    #     'location_tag':'td',
+    #     'location_class':'cities reqitem ReqRowClick',
+    #     'url_tag':'a',
+    #     'url_class':'href',
+    #     'xPath':'/html/body/div/div/div/article/div/div/div/div[3]/div[1]/div[2]/div/div/iframe'
+    #     # 'xPath':'//*[@class="reqitem ReqRowClick ReqRowClick"]'
+    # }
     # 'Kairos':{ # Doesn't work
     #     'urls':['https://kairospower.com/careers/'],
     #     'jobs_tag':'div',
@@ -271,9 +274,23 @@ data_dict={
     # },
 }
 
-for employer in list(data_dict.keys())[16:]:
+def init_files():
+    df_test=pd.DataFrame({
+        'Title':[''],
+        'Locations':[''],
+        'Url':['']
+    })
+    key_list=list(data_dict.keys())
+    for i in range(len(key_list)):
+        # df_test[key_list[i]]=['']
+        with pd.ExcelWriter('data.xlsx',engine='openpyxl',mode='a',if_sheet_exists='replace') as writer:
+            df_test.to_excel(writer,sheet_name=key_list[i],index=False)
+init_files()
+for employer in list(data_dict.keys()):
+    url_ind=0
     for url in data_dict[employer]['urls']:
         print(employer)
+        url_ind+=1
         driver=webdriver.Chrome('chromedriver.exe')
         driver.get(url)
         
@@ -284,9 +301,9 @@ for employer in list(data_dict.keys())[16:]:
         # html=driver.page_source
         driver.quit()
         # Send a GET request to the URL and parse the HTML using BeautifulSoup
-        f=open('test.txt','w')
-        f.write(html)
-        f.close()
+        # f=open('test.txt','w')
+        # f.write(html)
+        # f.close()
         
         soup = BeautifulSoup(html, 'html.parser')
         # Find all of the job listings on the page
@@ -295,6 +312,11 @@ for employer in list(data_dict.keys())[16:]:
         
         # # Iterate over each job listing and extract the title, location, and link
         # print(job_listings)
+        
+        df_old=pd.read_excel('data.xlsx',sheet_name=employer)
+        df_job_title=list(df_old['Title'])
+        df_job_location=list(df_old['Locations'])
+        df_job_url=list(df_old['Url'])
         for job_listing in job_listings:
             # print(job_listing)
             # title = job_listing.find(data_dict[employer]['title_tag'],class_=data_dict[employer]['title_class']).text.strip()
@@ -303,19 +325,32 @@ for employer in list(data_dict.keys())[16:]:
             
             try:
                 title = job_listing.find(data_dict[employer]['title_tag'],class_=data_dict[employer]['title_class']).text.strip()
+                df_job_title.append(title)
             except: 
                 title=''
+                df_job_title.append(title)
             try:
                 location = job_listing.find(data_dict[employer]['location_tag'], class_=data_dict[employer]['location_class'],).text.strip()
+                df_job_location.append(location)
             except:
                 location=''
+                df_job_location.append(location)
             try:
                 link = job_listing.find(data_dict[employer]['url_tag'])[data_dict[employer]['url_class']]
+                df_job_url.append(link)
             except:
                 link=''
-            # print(i)
+                df_job_url.append(link)
             # Print the extracted information
             # if title!='' and location!='' and link!='':
             print(f'Title: {title}\nLocation: {location}\nLink: {link}\n')
+        df=pd.DataFrame({
+            'Title':df_job_title,
+            'Locations':df_job_location,
+            'Url':df_job_url
+        })
+        with pd.ExcelWriter("data.xlsx",mode='a',if_sheet_exists='replace') as writer:
+            df.to_excel(writer,sheet_name=employer)
+
 
 # print(job_listings)
