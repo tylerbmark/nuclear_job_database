@@ -5,7 +5,22 @@ This project is designed to compile a database of all nuclear related jobs for u
 [Google Drive link](https://docs.google.com/spreadsheets/d/1-1ADPSkO3RNFu-H-JD5RQFV4l6obgiK6/edit?usp=sharing&ouid=114343353415857691307&rtpof=true&sd=true)
 
 # Instructions:
+## Setting up environment and packages
+To create a python environment:\
+``python -m venv /path/to/new/virtual/environment``
 
+To activate the package:\
+`` ./path/to/new/virtual/environment/activate ``
+
+Install the following packages:\
+``pip install bs4 selenium pandas numpy requests``
+## Chrome Drivers
+To use Selenium, Chrome Drivers must be installed which is straightforward
+1. Download and install a ChromeDriver and move the file over to the project folder
+https://chromedriver.chromium.org/downloads
+2. Rename this line in ``main.py`` to point to your driver file location
+``driver=webdriver.Chrome('chromedriver.exe') ``
+3. (Not as important) Install the Drive for desktop application to update the database to Google Drive for the finished product. I'll likely have a raspberry pi automatically do this.  https://www.google.com/drive/download/
 # Current Working Employers
 * Southern Company
 * Westinghouse
@@ -13,6 +28,7 @@ This project is designed to compile a database of all nuclear related jobs for u
 * BWXT
 * TerraPower
 * Urenco
+* General Atomics
 
 
 # Future Work
@@ -20,7 +36,6 @@ This project is designed to compile a database of all nuclear related jobs for u
 * Continuing to add new companies
     * Nuscale
     * LANL
-    * General Atomics
     * EnergySolutions
     * GE Hitachi Nuclear Energy
     * Unistar Nuclear Energy
