@@ -8,11 +8,10 @@ This project is designed to compile a database of all nuclear related jobs for u
 
 
 # Future Work
+* 403 Status Code
 * Continuing to add new companies
-    * BWXT
     * Nuscale
     * TerraPower
-    * Duke Energy
 * Concatenating multiple dataframes from one company onto a single sheet. 
 * Adding National Labs and Universities
 
