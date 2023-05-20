@@ -21,7 +21,7 @@ https://chromedriver.chromium.org/downloads
 2. Rename this line in ``main.py`` to point to your driver file location
 ``driver=webdriver.Chrome('chromedriver.exe') ``
 3. (Not as important) Install the Drive for desktop application to update the database to Google Drive for the finished product. I'll likely have a raspberry pi automatically do this.  https://www.google.com/drive/download/
-# Current Working Employers
+# Current Considered Employers on Database
 * Southern Company
 * Westinghouse
 * Duke Energy
@@ -29,15 +29,25 @@ https://chromedriver.chromium.org/downloads
 * TerraPower
 * Urenco
 * General Atomics
-
+* Entergy
+* Orano
+* Cameco Corporation
+* GE Hitachi Nuclear Energy
+* Enercon
+* First Energy
+* NextEra Energy
+* Constellation
+* Engie
 
 # Future Work
-* 403 Status Code
+* Reading multiple pages on the websites
 * Continuing to add new companies
     * Nuscale
-    * LANL
+    * LANL 
     * EnergySolutions
-    * GE Hitachi Nuclear Energy
+    * Kairos
+    * NEI (not nuclear)
+    * Areva (Orano? )
     * Unistar Nuclear Energy
 * Concatenating multiple dataframes from one company onto a single sheet. 
 * Adding National Labs and Universities
