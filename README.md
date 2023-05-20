@@ -6,12 +6,24 @@ This project is designed to compile a database of all nuclear related jobs for u
 
 # Instructions:
 
+# Current Working Employers
+* Southern Company
+* Westinghouse
+* Duke Energy
+* BWXT
+* TerraPower
+* Urenco
+
 
 # Future Work
 * 403 Status Code
 * Continuing to add new companies
     * Nuscale
-    * TerraPower
+    * LANL
+    * General Atomics
+    * EnergySolutions
+    * GE Hitachi Nuclear Energy
+    * Unistar Nuclear Energy
 * Concatenating multiple dataframes from one company onto a single sheet. 
 * Adding National Labs and Universities
 
