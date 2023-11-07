@@ -1,8 +1,8 @@
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
+from lxml import etree
+import asyncio
+from pyppeteer import launch
 from bs4 import BeautifulSoup
+import numpy as np
 import pandas as pd
 import os
 
@@ -273,6 +273,13 @@ data_dict={
     #     'xPath': '/html/body/div[3]/form/span[2]/div[3]/div/div[1]/div/div[4]/div[1]/div[2]/table[2]/tbody/tr[4]/td/table/tbody/tr/td/div/div/span[1]/div/div/div[1]/div[3]/table[1]/tbody/tr[1]', 
     # },
 }
+async def get_html(url):
+        browser = await launch(headless=True,executablePath='/usr/bin/chromium-browser')
+        page = await browser.newPage()
+        await page.goto(url)
+        html=await page.content()
+        await browser.close()
+        return html
 
 def init_files():
     df_test=pd.DataFrame({
@@ -286,20 +293,12 @@ def init_files():
         with pd.ExcelWriter('data.xlsx',engine='openpyxl',mode='a',if_sheet_exists='replace') as writer:
             df_test.to_excel(writer,sheet_name=key_list[i],index=False)
 init_files()
-for employer in list(data_dict.keys()):
+for employer in list(data_dict.keys())[::-1]:
     url_ind=0
     for url in data_dict[employer]['urls']:
         print(employer)
         url_ind+=1
-        driver=webdriver.Chrome('chromedriver.exe')
-        driver.get(url)
-        
-        wait=WebDriverWait(driver,10)
-        # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        wait.until(EC.presence_of_element_located((By.XPATH, data_dict[employer]['xPath'])))
-        html = driver.execute_script("return document.documentElement.innerHTML")
-        # html=driver.page_source
-        driver.quit()
+        html=asyncio.get_event_loop().run_until_complete(get_html(url))
         # Send a GET request to the URL and parse the HTML using BeautifulSoup
         # f=open('test.txt','w')
         # f.write(html)
