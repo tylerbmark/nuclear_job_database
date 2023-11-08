@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
+from lxml import etree
 
 data_dict={
     'Southern Company':{
@@ -219,6 +220,64 @@ data_dict={
         'url_class':'href',
         'xPath': '/html',      
     },
+    'Framatone':{
+        'urls':['https://www.framatome.com/en/jobseekers/job-offers/'],
+        
+    },
+    'Idaho NL':{ # Can't seem to filter 
+        'urls':['https://inl.taleo.net/careersection/inl_external/jobsearch.ftl?lang=en&portal=8110010144#'],
+        'jobs_tag':'tr',
+        'jobs_class':'even',
+        'jobs_id':'',
+        'title_tag':'div',
+        'title_class':'absolute',
+        'location_tag':'', 
+        'location_class':'',
+        'url_tag':'a',
+        'url_class':'href',
+        'xPath': '/html/body/div[3]/div/div[3]/div[5]/div[3]/div[3]/div[3]/div[2]/table/tbody/tr[1]',      
+    },
+    'Oak Ridge National Lab':{
+        'urls':['https://jobs.ornl.gov/search/?q=nuclear&searchby=location&d=10',]+
+        [F'https://jobs.ornl.gov/search/?q=nuclear&searchby=location&d=10&startrow={i}' for i in range(25,100,25)],
+        'title_xpath':'//*[@id="searchresults"]/tbody/tr/td[1]/span/a',
+        'location_xpath':'//*[@id="searchresults"]/tbody/tr/td[2]/span',
+        'location_place':'',
+        'url_xpath':'//*[@id="searchresults"]/tbody/tr[1]/td[1]/span/a',  
+    },
+    'Lawrence Livermore NL':{# Doesn't work
+        'urls':['https://www.llnl.gov/join-our-team/careers/find-your-job/156da5cf-5933-4153-874f-cfd786065564/nuclear'],
+        'title_xpath':'//*[@id="onelab-content"]/div/div/div/div/div/div/div/a[1]',
+        # 'location_xpath':'//*[@id="onelab-content"]/div/div[3]/div[2]/div[1]/div/div/small[2]/i',
+        'location_xpath':'',
+        'location_place':'Livermore, CA',
+        'url_xpath':'//*[@id="onelab-content"]/div/div/div/div/div/div/div/a[1]',  
+    },
+    'Sandia NL':{
+        'urls':[
+            'https://sandia.jobs/jobs/?q=nuclear',
+            'https://sandia.jobs/jobs/?q=nuclear&page=2',
+            'https://sandia.jobs/jobs/?q=nuclear&page=3'],
+        'title_xpath':'//*[@id="jobs"]/li/div/a/h2',
+        # 'title_xpath':'/html/body/div[1]/div/div/div[1]/div/div/div/div/main/div/ul[1]/li/div/a/h2',
+        'location_xpath':'//*[@id="jobs"]/li/div/a/p[1]',
+        'location_place':'',
+        'url_xpath':'//*[@id="jobs"]/li/div/a',
+    },
+    'Helion Fusion':{
+        'urls':['https://www.helionenergy.com/careers/'],
+        'title_xpath':'//*[@id="job-list-table"]/li/div/p',
+        'location_xpath':'',
+        'location_place':'Everett, WA',
+        'url_xpath':'//*[@id="job-list-table"]/li/div/div/a',
+    },
+    'Brookhaven NL':{
+        'urls':['https://jobs.bnl.gov/search-jobs/nuclear?orgIds=3437&kt=1'],
+        'title_xpath':'//*[@id="search-results-list"]/ul/li/a/h2',
+        'location_xpath':'//*[@id="search-results-list"]/ul/li/a/span',
+        'location_place':'',
+        'url_xpath':'//*[@id="search-results-list"]/ul/li/a',
+    },
     # 'EnergySolutions':{# Doesn't work
     #     'urls':['https://energy-solution.com/careers/'],
     #     'jobs_tag':'tr',
@@ -235,31 +294,19 @@ data_dict={
     # }
     # 'Kairos':{ # Doesn't work
     #     'urls':['https://kairospower.com/careers/'],
-    #     'jobs_tag':'div',
-    #     'jobs_class':'opening',
-    #     'jobs_id':'',
-    #     'title_tag':'div',
-    #     'title_class':'opening',
-    #     'location_tag':'span',
-    #     'location_class':'location',
-    #     'url_tag':'a',
-    #     'url_class':'href',
-    #     'xPath': '/html/body/div/div/iframe',         
+    #     'title_xpath':'/html/body/div/div/div/section[1]/div/a',
+    #     'location_xpath':'//*[@id="search-results-list"]/ul/li/a/span',
+    #     'location_place':'',
+    #     'url_xpath':'//*[@id="search-results-list"]/ul/li/a',   
     # }
 
     # 'NuScale':{# Doesnt work
     #     'urls':['https://www.nuscalepower.com/en/about/careers/job-openings'],
-    #     'jobs_tag':'table',
-    #     'jobs_class':'jv-job-list',
-    #     'jobs_id':'',
-    #     'title_tag':'td',
-    #     'title_class':'jv-job-list-name',
-    #     'location_tag':'td',
-    #     'location_class':'jv-job-list-location',
-    #     'url_tag':'a',
-    #     'url_class':'href',
-    #     'xPath': '/html/body/div/div/div',
-    # },
+    #     'title_xpath':'/html/body/div/div/div/article/div/table[3]/tbody/tr[1]/td[1]/a',
+    #     'location_xpath':'//*[@id="search-results-list"]/ul/li/a/span',
+    #     'location_place':'',
+    #     'url_xpath':'//*[@id="search-results-list"]/ul/li/a',       
+    #     },
     # 'LANL':{ #not working
     #     'urls':['https://jobsp1.lanl.gov/OA_HTML/OA.jsp?page=/oracle/apps/irc/candidateSelfService/webui/VisAdJobSchPG&_ri=821&SeededSearchFlag=Y&DaysSincePosting=1001&_ti=129777394&retainAM=Y&addBreadCrumb=S&oapc=2&oas=epFLitlLOHrWYedY_zgo_Q..'],
     #     'jobs_tag':'tr',
@@ -283,10 +330,15 @@ def init_files():
     key_list=list(data_dict.keys())
     for i in range(len(key_list)):
         # df_test[key_list[i]]=['']
-        with pd.ExcelWriter('data.xlsx',engine='openpyxl',mode='a',if_sheet_exists='replace') as writer:
-            df_test.to_excel(writer,sheet_name=key_list[i],index=False)
+        try:
+            with pd.ExcelWriter('data.xlsx',engine='openpyxl',mode='a',if_sheet_exists='replace') as writer:
+                df_test.to_excel(writer,sheet_name=key_list[i],index=False)
+        except:
+            with pd.ExcelWriter('data.xlsx',engine='openpyxl',mode='w') as writer:
+                df_test.to_excel(writer,sheet_name=key_list[i],index=False)
+            
 init_files()
-for employer in list(data_dict.keys()):
+for employer in list(data_dict.keys())[-1:]:
     url_ind=0
     for url in data_dict[employer]['urls']:
         print(employer)
@@ -294,56 +346,44 @@ for employer in list(data_dict.keys()):
         driver=webdriver.Chrome('chromedriver.exe')
         driver.get(url)
         
-        wait=WebDriverWait(driver,10)
-        # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        wait.until(EC.presence_of_element_located((By.XPATH, data_dict[employer]['xPath'])))
-        html = driver.execute_script("return document.documentElement.innerHTML")
-        # html=driver.page_source
+        # html = driver.execute_script("return document.documentElement.innerHTML")
+        html=driver.page_source
+        
         driver.quit()
+
         # Send a GET request to the URL and parse the HTML using BeautifulSoup
-        # f=open('test.txt','w')
-        # f.write(html)
+        # f=open('test.txt','r')
+        # html=f.read()
         # f.close()
-        
         soup = BeautifulSoup(html, 'html.parser')
-        # Find all of the job listings on the page
-        # print(soup)
-        job_listings = soup.find_all(data_dict[employer]['jobs_tag'], class_=data_dict[employer]['jobs_class'], id_=data_dict[employer]['jobs_id'])
-        
-        # # Iterate over each job listing and extract the title, location, and link
-        # print(job_listings)
+        soup.find_all(data_dict)
+        dom = etree.HTML(str(soup))
+
+        # print(job_listings[0].get('href'))
         
         df_old=pd.read_excel('data.xlsx',sheet_name=employer)
         df_job_title=list(df_old['Title'])
         df_job_location=list(df_old['Locations'])
         df_job_url=list(df_old['Url'])
-        for job_listing in job_listings:
-            # print(job_listing)
-            # title = job_listing.find(data_dict[employer]['title_tag'],class_=data_dict[employer]['title_class']).text.strip()
-            # location = job_listing.find(data_dict[employer]['location_tag'], class_=data_dict[employer]['location_class']).text.strip()
-            # link = job_listing.find(data_dict[employer]['url_tag'])[data_dict[employer]['url_class']]
-            
-            try:
-                title = job_listing.find(data_dict[employer]['title_tag'],class_=data_dict[employer]['title_class']).text.strip()
-                df_job_title.append(title)
-            except: 
-                title=''
-                df_job_title.append(title)
-            try:
-                location = job_listing.find(data_dict[employer]['location_tag'], class_=data_dict[employer]['location_class'],).text.strip()
-                df_job_location.append(location)
-            except:
-                location=''
-                df_job_location.append(location)
-            try:
-                link = job_listing.find(data_dict[employer]['url_tag'])[data_dict[employer]['url_class']]
-                df_job_url.append(link)
-            except:
-                link=''
-                df_job_url.append(link)
-            # Print the extracted information
-            # if title!='' and location!='' and link!='':
-            print(f'Title: {title}\nLocation: {location}\nLink: {link}\n')
+        # print(len(job_listings))
+        df_job_title=df_job_title+[i.text for i in dom.xpath(data_dict[employer]['title_xpath'])]
+        if data_dict[employer]['location_xpath']=='':
+            df_job_location=df_job_location+[data_dict[employer]['location_place']]*len(dom.xpath(data_dict[employer]['title_xpath']))
+        else:
+            df_job_location=df_job_location+[i.text for i in dom.xpath(data_dict[employer]['location_xpath'])]
+        df_job_url=df_job_url+[i.get('href') for i in dom.xpath(data_dict[employer]['url_xpath'])]
+        print('Titles:')
+        for i in df_job_title:
+            print(i)
+        print('Locations:')
+        for i in df_job_location:
+            print(i)
+        print('urls')
+        for i in df_job_url:
+            print(i)
+        
+        print(len(df_job_title),len(df_job_location),len(df_job_url))
+        # print('title: ',df_job_title,'\nlocation: ',df_job_location,'\nurl: ',df_job_url)
         df=pd.DataFrame({
             'Title':df_job_title,
             'Locations':df_job_location,
