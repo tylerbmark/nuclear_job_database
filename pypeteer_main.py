@@ -226,7 +226,7 @@ data_dict={
     # },
 }
 async def get_html(url):
-    browser = await launch(headless=True)  # Launch a headless Chromium browser.
+    browser = await launch(headless=True, executablePath='/usr/bin/chromium-browser' )  # Launch a headless Chromium browser.
     page = await browser.newPage()
     await page.goto(url)  # Navigate to the URL you want to scrape.
     html = await page.content()  # Get the HTML content of the page.
