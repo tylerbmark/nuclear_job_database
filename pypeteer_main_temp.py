@@ -51,16 +51,10 @@ data_dict={
     },
     'General Atomics':{# Works but needs to read multiple pages
         'urls':['https://www.ga-careers.com/search-jobs/nuclear?orgIds=499&kt=1&ac=376'],
-        'jobs_tag':'li',
-        'jobs_class':'',
-        'jobs_id':'',
-        'title_tag':'h2',
-        'title_class':'',
-        'location_tag':'span',
-        'location_class':'job-location',
-        'url_tag':'a',
-        'url_class':'href',
-        'xPath': '/html/body/div/main/div[1]/div/div[2]/section', 
+        'title_xpath':'/html/body/div[1]/main/div[1]/div/div[2]/section/section/ul/li/a/h2',
+        'location_xpath':'/html/body/div[1]/main/div[1]/div/div[2]/section/section/ul/li/a/span[2]',
+        'location_place':'',
+        'url_xpath':'/html/body/div[1]/main/div[1]/div/div[2]/section/section/ul/li/a'
     },
     'Entergy':{#Works but has the url bug
         'urls':['https://jobs.entergy.com/search/?createNewAlert=false&q=nuclear&locationsearch='],
@@ -76,13 +70,13 @@ data_dict={
         'location_place':'',
         'url_xpath':'//*[@id="app"]/div/div[3]/main/div[2]/div[2]/div[2]/ul/li/div[3]/a'  
     },
-    'Cameco':{ # Need to add multiple pages
-        'urls':['https://career17.sapsf.com/career?company=Cameco&career%5fns=job%5flisting%5fsummary&navBarLevel=JOB%5fSEARCH&_s.crb=WXl0EKE4OuePFGQ%2f4phs%2boAy6K1hlTLbgup0a8Vj%2bTc%3d'],
-        'title_xpath':'',
-        'location_xpath':'',
-        'location_place':'',
-        'url_xpath':'' 
-    },
+    # 'Cameco':{ # Need to add multiple pages
+    #     'urls':['https://career17.sapsf.com/career?company=Cameco&career%5fns=job%5flisting%5fsummary&navBarLevel=JOB%5fSEARCH&_s.crb=WXl0EKE4OuePFGQ%2f4phs%2boAy6K1hlTLbgup0a8Vj%2bTc%3d'],
+    #     'title_xpath':'',
+    #     'location_xpath':'',
+    #     'location_place':'',
+    #     'url_xpath':'' 
+    # },
     'GE Hitachi NE':{ # Works but need to figure out location
         'urls':
         ['https://jobs.gecareers.com/power/global/en/ge-hitachi-nuclear-energy?s=1&rk=l-ge-hitachi-nuclear-energy']+
@@ -100,11 +94,11 @@ data_dict={
         'url_xpath':'//*[@id="oracletaleocwsv2-wrapper"]/section[5]/div/div/div[2]/div/div/div/div[1]/div[2]/h4/a' 
     },
     'FirstEnergy':{#BUST
-        'urls':['https://careers.firstenergycorp.com/go/Co-OpInternship-Opportunities/3340500/','https://careers.firstenergycorp.com/go/Engineering-Opportunities/3340400/'],
+        'urls':['https://careers.firstenergycorp.com/#en/sites/FirstEnergyCareers/requisitions?keyword=intern&mode=location'],
         'title_xpath':'/html/body/div[4]/div[1]/div/div[1]/div[2]/div/div/div/section/div/div[3]/div/div/div/div[2]/div/div/ul/li/div/a/div/search-result-item-header/div/span',
         'location_xpath':'/html/body/div[4]/div[1]/div/div[1]/div[2]/div/div/div/section/div/div[3]/div/div/div/div[2]/div/div/ul/li/div/a/div/search-result-item-header/div/span',
         'location_place':'',
-        'url_xpath':''
+        'url_xpath':'/html/body/div[4]/div[1]/div/div[1]/div[2]/div/div/div/section/div/div[3]/div/div/div/div[2]/div/div/ul/li/div/a/div/search-result-item-header/div/span'
     },
     'NextEra':{#DONE just needs the url intro
         'urls':['https://jobs.nexteraenergy.com/go/Nuclear-Jobs/2674300/',
@@ -132,7 +126,10 @@ data_dict={
     },
     'Framatone':{#BRUH
         'urls':['https://www.framatome.com/en/jobseekers/job-offers/'],
-        
+        'title_xpath':'/html/body/div[4]/main/div/div/div/div/div/div[2]/div[3]/div/div/div/div[1]/a/h2',
+        'location_xpath':'/html/body/div[4]/main/div/div/div/div/div/div[2]/div[3]/div/div/div/div[4]',
+        'location_place':'',
+        'url_xpath':'/html/body/div[4]/main/div/div/div/div/div/div[2]/div[3]/div/div/div/div[1]/a/h2'
     },
     'Idaho NL':{ #BRUUHHHH
         'urls':['https://inl.taleo.net/careersection/inl_external/jobsearch.ftl?lang=en&portal=8110010144#'],
@@ -226,7 +223,8 @@ data_dict={
     # },
 }
 async def get_html(url):
-    browser = await launch(headless=True, executablePath='/usr/bin/chromium-browser' )  # Launch a headless Chromium browser.
+    # browser = await launch(headless=True, executablePath='/usr/bin/chromium-browser' )  # Launch a headless Chromium browser.
+    browser = await launch(headless=True )  # Launch a headless Chromium browser.
     page = await browser.newPage()
     await page.goto(url)  # Navigate to the URL you want to scrape.
     html = await page.content()  # Get the HTML content of the page.
@@ -252,8 +250,8 @@ def init_files():
 init_files()
 
 
-# for employer in list(data_dict.keys())[::-1]:
-for employer in ['GE Hitachi NE']:
+for employer in list(data_dict.keys())[::-1]:
+# for employer in ['General Atomics']:
     url_ind=0
     for url in data_dict[employer]['urls']:
         print(employer)
@@ -290,6 +288,13 @@ for employer in ['GE Hitachi NE']:
         else:
             df_job_location=df_job_location+[i.text for i in dom.xpath(data_dict[employer]['location_xpath'])]
         df_job_url=df_job_url+[i.get('href') for i in dom.xpath(data_dict[employer]['url_xpath'])]
+
+        for ind,job_url in enumerate(df_job_url):
+            if 'https://' in job_url:
+                continue
+            else:
+                df_job_url[ind]=url.split('/')[0] + '//' + url.split('/')[2] + job_url
+
         # print('Titles:')
         # for i in df_job_title:
         #     print(i)
@@ -317,7 +322,7 @@ for employer in ['GE Hitachi NE']:
                 'Url':[]
             })
         with pd.ExcelWriter("data.xlsx",mode='a',if_sheet_exists='replace') as writer:
-            df.to_excel(writer,sheet_name=employer)
+            df.to_excel(writer,sheet_name=employer,index=False)
 
 
 # print(job_listings)

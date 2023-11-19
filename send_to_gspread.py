@@ -6,6 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+import math
 
 SAMPLE_SPREADSHEET_ID = "11NKQs2Bd_1fu8dV_71a9GkMuTVXIpOfTC2ipfn2DJI8"
 SCOPES=['https://www.googleapis.com/auth/spreadsheets',
@@ -67,10 +68,32 @@ def write():
   creds= Credentials.from_authorized_user_file('token.json',SCOPES)
   service=build('sheets','v4',credentials=creds)
   for name_i,sheet_name in enumerate(sheet_names):
+    # print(sheet_name)
     excel_data=pd.read_excel('data.xlsx',sheet_name=sheet_name)
+  
+    values=excel_data.values.tolist()
+    # print(excel_data.columns.values.tolist())
+    for index,value in enumerate(values):
+      # if any(math.isnan(i)):
+      try:
+        index_nan = [isinstance(x, (int, float)) and math.isnan(x) for x in value].index(True)
+        print("Index of True:", index_nan)
+        values[index][index_nan]='idk'
+      except ValueError:
+        print("True not found in the list.")
+        # continue
     body={
-  	  'values':[excel_data.columns.values.tolist()]+excel_data.values.tolist()
+  	  'values':[excel_data.columns.values.tolist()]+values
       }
+    # if sheet_name=='Constellation Energy':
+      # contains_nan = [isinstance(x, (int, float)) and math.isnan(x) for x in i].index(True)
+      # print(contains_nan)
+      # print(type(i[1]))
+      # for j in i:
+      #   print(''==j)
+        # print(True)
+    # break
+
     result=service.spreadsheets().values().update(
     	spreadsheetId=SAMPLE_SPREADSHEET_ID, range=sheet_name,
     	valueInputOption='RAW',body=body).execute()
